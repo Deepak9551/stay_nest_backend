@@ -26,8 +26,8 @@ public class Room {
 
     private String type; // Type of the room (e.g., Single, Double, Suite)
 
-    @Column(nullable = false,precision = 10, scale = 2)
-    private BigDecimal price; // Base Price of the room
+    @Column(name = "base_price", nullable = false,precision = 10, scale = 2)
+    private BigDecimal basePrice; // Base Price of the room
 
         @Column(nullable = false , columnDefinition = "TEXT[]")
     private String[] photos; // Array of photo URLs for the hotel

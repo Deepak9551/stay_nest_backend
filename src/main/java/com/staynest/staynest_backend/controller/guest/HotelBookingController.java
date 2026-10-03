@@ -17,6 +17,7 @@ public class HotelBookingController {
 
     private final BookingService bookingService;
 
+    // API for creating booking
     @PostMapping("/init")
     public ResponseEntity<BookingDto> initialize_booking(@RequestBody BookingRequest bookingRequest){
 
@@ -24,6 +25,7 @@ public class HotelBookingController {
         return ResponseEntity.ok(bookingDto);
     }
 
+    // API for Adding Guest to a Booking
     @PostMapping("/{bookingId}/addguest")
     public ResponseEntity<?> add_guest_to_booking(@PathVariable Long bookingId, @RequestBody List<GuestDto> guestDtoList){
 

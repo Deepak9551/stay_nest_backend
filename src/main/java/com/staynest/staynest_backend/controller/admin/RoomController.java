@@ -2,6 +2,7 @@ package com.staynest.staynest_backend.controller.admin;
 
 import com.staynest.staynest_backend.dto.RoomDto;
 import com.staynest.staynest_backend.services.RoomService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,7 +18,7 @@ public class RoomController {
 
     private final RoomService roomService;
     @PostMapping
-    public ResponseEntity<RoomDto> create_room(@PathVariable("hotelId") Long hotel_Id,@RequestBody RoomDto roomDto){
+    public ResponseEntity<RoomDto> create_room(@PathVariable("hotelId") Long hotel_Id,@Valid @RequestBody RoomDto roomDto){
 
         RoomDto room = roomService.create_room(hotel_Id, roomDto);
 

@@ -14,13 +14,15 @@ public record RoomDto(
 
         @NotNull(message = "Price is required")
         @DecimalMin(value = "0.0", message = "Price must be positive")
-        BigDecimal price,
+        BigDecimal basePrice,
 
         @Size(min = 1, message = "At least one photo is required")
         String[] photos,
 
         String[] amenities,
-        @Size(min = 1, message = "At least one room is required")
+
+        @NotNull(message = "Total count is required")
+        @Min(value = 1, message = "Total count must be at least 1")
          Integer totalCount,
 
         @NotNull(message = "Capacity is required")

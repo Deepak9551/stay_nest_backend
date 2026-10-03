@@ -12,6 +12,7 @@ import com.staynest.staynest_backend.services.RoomService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -21,6 +22,7 @@ import static com.staynest.staynest_backend.advice.ErrorCode.ROOM_NOT_FOUND;
 @Service
 @RequiredArgsConstructor
 @Slf4j
+@Transactional
 public class RoomServiceImpl implements RoomService {
 
     private final RoomRepository roomRepository;

@@ -2,6 +2,7 @@ package com.staynest.staynest_backend.controller.guest;
 
 import com.staynest.staynest_backend.dto.HotelDto;
 import com.staynest.staynest_backend.dto.HotelInfo;
+import com.staynest.staynest_backend.dto.HotelPriceDto;
 import com.staynest.staynest_backend.dto.HotelSearchRequest;
 import com.staynest.staynest_backend.services.HotelService;
 import com.staynest.staynest_backend.services.InventoryService;
@@ -20,8 +21,8 @@ public class HotelBrowseController {
     private final HotelService hotelService;
 
     @GetMapping("/search")
-    public ResponseEntity<Page<HotelDto>> search_hotel(@RequestBody HotelSearchRequest hotelSearchRequest){
-        Page<HotelDto> hotelDtos = inventoryService.search_hotels(hotelSearchRequest);
+    public ResponseEntity<Page<HotelPriceDto>> search_hotel(@RequestBody HotelSearchRequest hotelSearchRequest){
+        Page<HotelPriceDto> hotelDtos = inventoryService.search_hotels(hotelSearchRequest);
      return    ResponseEntity.ok(hotelDtos);
     }
 
