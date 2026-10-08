@@ -6,7 +6,9 @@ import com.staynest.staynest_backend.dto.HotelInfo;
 import com.staynest.staynest_backend.dto.RoomDto;
 import com.staynest.staynest_backend.entity.Hotel;
 import com.staynest.staynest_backend.entity.Room;
+import com.staynest.staynest_backend.entity.User;
 import com.staynest.staynest_backend.exception.ResourceNotFound;
+import com.staynest.staynest_backend.exception.UnAuthorizedException;
 import com.staynest.staynest_backend.mapper.HotelMapper;
 import com.staynest.staynest_backend.mapper.RoomMapper;
 import com.staynest.staynest_backend.repository.HotelRepository;
@@ -15,12 +17,15 @@ import com.staynest.staynest_backend.services.HotelService;
 import com.staynest.staynest_backend.services.InventoryService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
 import static com.staynest.staynest_backend.advice.ErrorCode.HOTEL_NOT_FOUND;
+import static com.staynest.staynest_backend.advice.ErrorCode.UNAUTHORIZED;
 
 @Service
 @RequiredArgsConstructor
@@ -42,6 +47,9 @@ public class HotelServiceImpl implements HotelService {
         log.info("creating hotel with name :"+createHotelRequest.name());
         Hotel hotel = hotelMapper.toEntity(createHotelRequest);
         hotel.setActive(false); // means hotel is onboarded but not add in inventory
+
+        User owner =(User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        hotel.setOwner(owner);
         hotel = hotelRepository.save(hotel);
         log.info("Hotel creation completed with id_ "+hotel.getId());
         return hotelMapper.toDto(hotel);
@@ -52,6 +60,9 @@ public class HotelServiceImpl implements HotelService {
         log.info("Trying to find hotel with Id: "+hotel_id);
        var hotel =  hotelRepository.findById(hotel_id)
                 .orElseThrow(()-> new ResourceNotFound("hotel","hotel_id", HOTEL_NOT_FOUND));
+       if(!hotel.getOwner().equals(get_current_user())){
+           throw new UnAuthorizedException("hotel not belong to user :"+get_current_user().getUsername() , UNAUTHORIZED);
+       }
         return hotelMapper.toDto(hotel);
     }
 
@@ -60,6 +71,9 @@ public class HotelServiceImpl implements HotelService {
         log.info("Trying to update  hotel with Id: "+hotel_id);
         var hotel =  hotelRepository.findById(hotel_id)
                 .orElseThrow(()-> new ResourceNotFound("hotel","hotel_id", HOTEL_NOT_FOUND));
+        if(!hotel.getOwner().equals(get_current_user())){
+            throw new UnAuthorizedException("hotel not belong to user :"+get_current_user().getUsername() , UNAUTHORIZED);
+        }
             hotelMapper.updateHotel(update_hotel_request,hotel);
             hotel = hotelRepository.save(hotel);
         return hotelMapper.toDto(hotel);
@@ -73,6 +87,9 @@ public class HotelServiceImpl implements HotelService {
         var hotel =  hotelRepository.findById(hotel_id)
                 .orElseThrow(()-> new ResourceNotFound("hotel","hotel_id", HOTEL_NOT_FOUND));
 
+        if(!hotel.getOwner().equals(get_current_user())){
+            throw new UnAuthorizedException("hotel not belong to user :"+get_current_user().getUsername() , UNAUTHORIZED);
+        }
         // TODO: Delete all room of  hotel from inventory also
 
         for (Room room : hotel.getRoom()){
@@ -96,6 +113,9 @@ public class HotelServiceImpl implements HotelService {
         var hotel =  hotelRepository.findById(hotel_id)
                 .orElseThrow(()-> new ResourceNotFound("hotel","hotel_id", HOTEL_NOT_FOUND));
 
+        if(!hotel.getOwner().equals(get_current_user())){
+            throw new UnAuthorizedException("hotel not belong to user :"+get_current_user().getUsername() , UNAUTHORIZED);
+        }
         hotel.setActive(true);
         log.info("Hotel status updation complete  hotel with Id :"+hotel_id);
         hotelRepository.save(hotel);
@@ -111,10 +131,18 @@ public class HotelServiceImpl implements HotelService {
         log.info("Trying to find hotel with Id: "+hotel_id);
         var hotel =  hotelRepository.findById(hotel_id)
                 .orElseThrow(()-> new ResourceNotFound("hotel","hotel_id", HOTEL_NOT_FOUND));
+
+        if(!hotel.getOwner().equals(get_current_user())){
+            throw new UnAuthorizedException("hotel not belong to user :"+get_current_user().getUsername() , UNAUTHORIZED);
+        }
         HotelDto hotelDto = hotelMapper.toDto(hotel);
         List<RoomDto> roomDtos = roomMapper.room_dto_list(hotel.getRoom());
 
         return new HotelInfo(hotelDto,roomDtos);
+    }
+
+    private User get_current_user() {
+        return (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
     }
 
 

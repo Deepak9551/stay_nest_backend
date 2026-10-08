@@ -48,7 +48,7 @@ public class Hotel {
     @OneToMany(mappedBy = "hotel", cascade = CascadeType.ALL, orphanRemoval = true )
     private List<Room> room; // Reference to the associated room (if applicable)
 
-    @ManyToOne // one owner can have many hotels
+    @ManyToOne(optional = false) // one owner can have many hotels
     private User owner;
 
 }

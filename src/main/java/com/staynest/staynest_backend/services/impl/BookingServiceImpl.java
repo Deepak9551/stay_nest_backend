@@ -9,6 +9,7 @@ import com.staynest.staynest_backend.entity.Inventory;
 import com.staynest.staynest_backend.entity.User;
 import com.staynest.staynest_backend.entity.enums.BookingStatus;
 import com.staynest.staynest_backend.exception.ResourceNotFound;
+import com.staynest.staynest_backend.exception.UnAuthorizedException;
 import com.staynest.staynest_backend.mapper.BookingMapper;
 import com.staynest.staynest_backend.mapper.GuestMapper;
 import com.staynest.staynest_backend.repository.*;
@@ -16,6 +17,7 @@ import com.staynest.staynest_backend.services.BookingService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -98,6 +100,10 @@ public class BookingServiceImpl implements BookingService {
         Booking booking = bookingRepository.findById(booking_id)
                 .orElseThrow(() -> new ResourceNotFound("booking", "booking", BOOKING_NOT_FOUND));
 
+        User user = get_current_user();
+        if(!booking.getUser().equals(user)){
+            throw new UnAuthorizedException("User is not the belong to this booking",UNAUTHORIZED_BOOKING);
+        }
         if(is_booking_expired(booking)){
             throw new  IllegalStateException("Booking has been expired");
         }
@@ -129,9 +135,7 @@ public class BookingServiceImpl implements BookingService {
 
 
     private User get_current_user(){
-        User user = new User();
-        user.setId(1L);
-        return user;
+        return (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
     }
 }
 
